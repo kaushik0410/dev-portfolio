@@ -1,6 +1,7 @@
 
 const express = require("express");
-const router = express.Router();
+// const router = express.Router();
+const path = require("path");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 require('dotenv').config();
@@ -9,7 +10,8 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/", router);
+// app.use("/", router);
+app.use(express.static(path.join(__dirname, "build")));
 app.listen(5000, () => console.log("Server Running"));
 
 const contactEmail = nodemailer.createTransport({
@@ -28,7 +30,8 @@ contactEmail.verify((error) => {
   }
 });
 
-router.post("/contact", (req, res) => {
+// router.post("/contact", (req, res) => {
+app.post("/contact", (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const subject = req.body.subject;
@@ -74,4 +77,9 @@ router.post("/contact", (req, res) => {
       res.json({ code: 200, status: "Message Sent" });
     }
   });
+});
+
+// Serve React frontend for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
